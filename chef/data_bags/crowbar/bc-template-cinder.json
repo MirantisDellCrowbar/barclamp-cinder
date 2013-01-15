@@ -89,7 +89,7 @@
       },
       "api": {
         "bind_open_address": true,
-        "bind_port": 8776
+        "bind_port": 8276
       },
       "db": {
         "password": "",

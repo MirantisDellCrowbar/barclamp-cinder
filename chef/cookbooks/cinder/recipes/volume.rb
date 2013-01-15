@@ -37,19 +37,19 @@ if checked_disks.empty? or node[:cinder][:volume][:volume_type] == "local"
   max_fsize = ((`df -Pk #{fdir}`.split("\n")[1].split(" ")[3].to_i * 1024) * 0.90).to_i rescue 0
   fsize = max_fsize if fsize > max_fsize
 
-  bash "create local volume file" do
+  bash "create local volume file #{fname}" do
     code "truncate -s #{fsize} #{fname}"
     not_if do
       File.exists?(fname)
     end
   end
 
-  bash "setup loop device for volume" do
+  bash "setup loop device for volume #{fname}" do
     code "losetup -f --show #{fname}"
     not_if "losetup -j #{fname} | grep #{fname}"
   end
 
-  bash "create volume group" do
+  bash "create volume group #{volname}" do
     code "vgcreate #{volname} `losetup -j #{fname} | cut -f1 -d:`"
     not_if "vgs #{volname}"
   end
@@ -65,7 +65,7 @@ else
   if raw_list.empty? or raw_mode == "first"
     # use first non-OS disk for vg
     dname = "/dev/#{checked_disks.first}"
-    bash "wipe partitions" do
+    bash "wipe partitions #{dname}" do
       code "dd if=/dev/zero of=#{dname} bs=1024 count=1"
       not_if "vgs #{volname}"
     end
@@ -83,12 +83,12 @@ else
     dname = disk_list.join(' ')
   end
 
-  bash "create physical volume" do
+  bash "create physical volume #{dname}" do
     code "pvcreate #{dname}"
     not_if "pvs #{dname}"
   end
 
-  bash "create volume group" do
+  bash "create volume group #{volname}" do
     code "vgcreate #{volname} #{dname}"
     not_if "vgs #{volname}"
   end
@@ -127,16 +127,21 @@ end
 cinder_service("volume")
 
 # Restart doesn't work correct for this service.
-bash "restart-tgt_#{@cookbook_name}" do
-  code <<-EOH
-    stop tgt
-    start tgt
-EOH
-  action :nothing
-end
-
 service "tgt" do
   supports :status => true, :restart => true, :reload => true
   action :enable
-  notifies :run, "bash[restart-tgt_#{@cookbook_name}]"
+  restart_command "stop tgt ; start tgt"
+  #notifies :run, "bash[restart-tgt_#{@cookbook_name}]"
 end
+
+#workaround for crappy perl-style tgt's config parser
+#https://bugs.launchpad.net/devstack/+bug/1072121 somehow related
+to_include=Dir["/etc/tgt/conf.d/*.conf"]
+template "/etc/tgt/targets.conf" do
+  source "tgt_targets.conf.erb"
+  notifies :restart, "service[tgt]"
+  variables(
+    :tgt_confs => to_include
+  )
+end
+
