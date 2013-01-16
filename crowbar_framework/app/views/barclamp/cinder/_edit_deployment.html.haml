@@ -5,8 +5,8 @@
 :javascript
   $(document).ready(function(){
     var constraints = { 
-      "cinder-api": { "unique": false, "count": 1 }
-      "cinder-scheduler": { "unique": false, "count": 1 }
+      "cinder-api": { "unique": false, "count": 1 },
+      "cinder-scheduler": { "unique": false, "count": 1 },
       "cinder-volume": { "unique": false, "count": -1 }
     };
     node_selector($('#drag_drop'), constraints);

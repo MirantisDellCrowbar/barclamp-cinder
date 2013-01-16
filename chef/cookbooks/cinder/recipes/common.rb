@@ -69,6 +69,10 @@ if node[:cinder][:use_gitrepo]
 else
   package "cinder-common"
   package "python-cinder"
+  #err... broken dependencies in cinder pkgs
+  package "python-mysqldb" do
+    action :install
+  end
 end
 
 glance_env_filter = " AND glance_config_environment:glance-config-#{node[:cinder][:glance_instance]}"
