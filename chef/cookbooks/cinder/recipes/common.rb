@@ -16,63 +16,11 @@
 # Recipe:: common
 #
 
-if node[:cinder][:use_gitrepo] 
-  cinder_path = "/opt/cinder"
- 
-  pfs_and_install_deps "cinder" do
-    path cinder_path
-  end
-
-  create_user_and_dirs "cinder" do
-    user_name node[:cinder][:user]
-  end
-
-  execute "cp_policy.json_#{@cookbook_name}" do
-    command "cp #{cinder_path}/etc/cinder/policy.json /etc/cinder/"
-    creates "/etc/cinder/policy.json"
-  end
-
-  template "/etc/sudoers.d/cinder-rootwrap" do
-    source "cinder-rootwrap.erb"
-    mode 0440
-    variables(:user => node[:cinder][:user])
-  end
-
-  bash "deploy_filters_#{@cookbook_name}" do
-    cwd cinder_path
-    code <<-EOH
-    ### that was copied from devstack's stack.sh
-    if [[ -d $CINDER_DIR/etc/cinder/rootwrap.d ]]; then
-        # Wipe any existing rootwrap.d files first
-        if [[ -d $CINDER_CONF_DIR/rootwrap.d ]]; then
-            rm -rf $CINDER_CONF_DIR/rootwrap.d
-        fi
-        # Deploy filters to /etc/cinder/rootwrap.d
-        mkdir -m 755 $CINDER_CONF_DIR/rootwrap.d
-        cp $CINDER_DIR/etc/cinder/rootwrap.d/*.filters $CINDER_CONF_DIR/rootwrap.d
-        chown -R root:root $CINDER_CONF_DIR/rootwrap.d
-        chmod 644 $CINDER_CONF_DIR/rootwrap.d/*
-        # Set up rootwrap.conf, pointing to /etc/cinder/rootwrap.d
-        cp $CINDER_DIR/etc/cinder/rootwrap.conf $CINDER_CONF_DIR/
-        sed -e "s:^filters_path=.*$:filters_path=$CINDER_CONF_DIR/rootwrap.d:" -i $CINDER_CONF_DIR/rootwrap.conf
-        chown root:root $CINDER_CONF_DIR/rootwrap.conf
-        chmod 0644 $CINDER_CONF_DIR/rootwrap.conf
-    fi
-    ### end
-    EOH
-    environment({
-      'CINDER_DIR' => cinder_path,
-      'CINDER_CONF_DIR' => '/etc/cinder'
-    })
-    not_if {File.exists?("/etc/cinder/rootwrap.d")}
-  end
-else
-  package "cinder-common"
-  package "python-cinder"
-  #err... broken dependencies in cinder pkgs
-  package "python-mysqldb" do
-    action :install
-  end
+package "cinder-common"
+package "python-cinder"
+#err... broken dependencies in cinder pkgs
+package "python-mysqldb" do
+  action :install
 end
 
 glance_env_filter = " AND glance_config_environment:glance-config-#{node[:cinder][:glance_instance]}"
