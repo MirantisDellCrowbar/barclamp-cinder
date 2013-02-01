@@ -68,7 +68,7 @@
       ],
       "volume": {
         "volume_name": "cinder-volumes",
-        "volume_type": "local",
+        "volume_type": "raw",
         "cinder_raw_method": "all",
         "cinder_volume_disks": [],
         "local_file": "/var/lib/cinder/volume.raw",
