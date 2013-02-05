@@ -27,6 +27,7 @@ barclamp:
     - openstack 
   os_support:
     - ubuntu-12.04
+    - ubuntu-12.10
 
 crowbar:
   layout: 1
@@ -39,6 +40,10 @@ debs:
     repos:
       - deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/folsom main
       - deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-proposed/folsom main
+  ubuntu-12.10:
+    repos:
+      - deb http://ubuntu-cloud.archive.canonical.com/ubuntu quantal-updates/folsom main
+      - deb http://ubuntu-cloud.archive.canonical.com/ubuntu quantal-proposed/folsom main
   pkgs:
     - tgt
     - lvm2
