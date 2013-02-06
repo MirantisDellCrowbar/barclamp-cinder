@@ -17,5 +17,22 @@ class CinderController < BarclampController
   def initialize
     @service_object = CinderService.new logger
   end
+
+  def node_disks
+    name = params[:id] || params[:name]
+    node = NodeObject.find_node_by_name(name)
+
+    result = {
+        "node" => name,
+        "alias" => node["crowbar"]["display"]["alias"],
+        "disks" => {}
+    }
+
+    node["crowbar"]["disks"].each do | disk, data |
+      result["disks"][disk] = data["size"] if data["usage"] == "Storage"
+    end
+    Rails.logger.info "disk list #{result.inspect}"
+    render :json => JSON.generate(result)
+    end
 end
 

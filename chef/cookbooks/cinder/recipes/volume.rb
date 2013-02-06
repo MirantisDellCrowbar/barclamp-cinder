@@ -58,7 +58,7 @@ elsif node[:cinder][:volume][:volume_type] == "eqlx"
   # do nothing on the host
 else
   raw_mode = node[:cinder][:volume][:cinder_raw_method]
-  raw_list = node[:cinder][:volume][:cinder_volume_disks]
+  raw_list = node[:cinder][:volume][:cinder_volume_disks][node[:fqdn]]
   # if all, then just use the checked_list
   raw_list = checked_disks if raw_mode == "all"
 
