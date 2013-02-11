@@ -95,8 +95,6 @@
           "required": true,
           "mapping": {
             "crowbar-revision": { "type": "int", "required": true },
-  "crowbar-status": { "type": "str" },
-  "crowbar-failed": { "type": "str" },
             "crowbar-committing": { "type": "bool" },
             "crowbar-queued": { "type": "bool" },
             "element_states": {
