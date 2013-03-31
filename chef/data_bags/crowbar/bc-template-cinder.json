@@ -41,6 +41,7 @@
         "python-cheetah",
         "python-carrot",
         "python-tempita",
+        "python-mysqldb",
         "python-sqlalchemy",
         "python-paramiko",
         "python-iso8601",
