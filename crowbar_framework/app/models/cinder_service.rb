@@ -20,8 +20,9 @@ class CinderService < ServiceObject
     @logger = thelogger
   end
 
-  #if barclamp allows multiple proposals OVERRIDE
-  # def self.allow_multiple_proposals?
+  def self.allow_multiple_proposals?
+    true
+  end
 
   def proposal_dependencies(role)
     answer = []
