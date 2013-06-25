@@ -108,6 +108,12 @@ backend_name = Chef::Recipe::Database::Util.get_backend_name(sql)
 include_recipe "#{backend_name}::client"
 include_recipe "#{backend_name}::python-client"
 
+# pickup password to database from cinder-api node
+node_api = search(:node, "roles:cinder-api").select{|api| api['cinder']['db']['password'] != nil }.first
+if node_api and node_api[:fqdn] != node[:fqdn]
+  node.set['cinder']['db']['password'] = node_api['cinder']['db']['password']
+end
+
 sql_connection = "#{backend_name}://#{node[:cinder][:db][:user]}:#{node[:cinder][:db][:password]}@#{sql_address}/#{node[:cinder][:db][:database]}"
 
 my_ipaddress = Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address
