@@ -4,7 +4,6 @@
   %label{:class => "h3", :for => "proposal_attributes"}= t('.attributes')
   = link_to t('raw'), proposal_barclamp_path(:id => @proposal.name, :controller => @proposal.barclamp, :dep_raw => @dep_raw, :attr_raw => true), :style => "float: right;"
   %div.container
-    = render 'barclamp/git/pfsdeps.html.haml'
     %p
       %label{ :for => :database_instance }= t('.database_instance')
       = instance_selector("database", :database_instance, "database_instance", @proposal)
@@ -81,3 +80,4 @@
         %div.container
           %label{ :for => :cinder_raw_method }= t('.volume_raw_mode')
           = select_tag :cinder_raw_method, options_for_select([['first','first'], ['all', 'all']], @proposal.raw_data['attributes'][@proposal.barclamp]["volume"]["cinder_raw_method"].to_s), :onchange => "update_value('volume/cinder_raw_method', 'cinder_raw_method', 'string')"
+    = render 'barclamp/git/pfsdeps.html.haml'
