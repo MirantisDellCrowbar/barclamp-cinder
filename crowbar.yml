@@ -126,4 +126,4 @@ locale_additions:
         deployment: Deployment
 
 git_repo:
-  - cinder https://github.com/openstack/cinder.git stable/grizzly
+  - cinder https://github.com/openstack/cinder.git 2013.2.b3
