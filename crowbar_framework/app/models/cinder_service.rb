@@ -30,6 +30,7 @@ class CinderService < ServiceObject
     answer = []
     deps = ["database", "keystone", "glance", "rabbitmq"]
     deps << "git" if role.default_attributes[@bc_name]["use_gitrepo"]
+    deps << "ceph" if role.default_attributes[@bc_name]["volume"]["volume_type"] == "rbd"
     deps.each do |dep|
       answer << { "barclamp" => dep, "inst" => role.default_attributes[@bc_name]["#{dep}_instance"] }
     end
@@ -49,7 +50,7 @@ class CinderService < ServiceObject
       }
     end
 
-    insts = ["Database", "Keystone", "Glance", "Rabbitmq"]
+    insts = ["Database", "Keystone", "Glance", "Rabbitmq", "Ceph"]
 
     base["attributes"][@bc_name]["git_instance"] = ""
     begin
@@ -112,12 +113,27 @@ class CinderService < ServiceObject
         raise(I18n.t('model.service.dependency_missing', :name => @bc_name, :dependson => "git"))
       end
     end
+
+    if proposal["attributes"][@bc_name]["volume"]["volume_type"] == "rbd"
+      cephService = CephService.new(@logger)
+      cephs = cephService.list_active[1].to_a
+      if cephs.empty?
+        raise(I18n.t('model.service.dependency_missing', :name => @bc_name, :dependson => "ceph"))
+      end
+    end
   end
 
 
   def apply_role_pre_chef_call(old_role, role, all_nodes)
     @logger.debug("Cinder apply_role_pre_chef_call: entering #{all_nodes.inspect}")
     return if all_nodes.empty?
+
+    # apply ceph-client role if storage backend is Rados
+    unless role.default_attributes[@bc_name]["ceph_instance"].empty?
+      role.run_list << "role[cinder-volume]"
+      role.run_list << "role[ceph-cinder]"
+      role.save
+    end
 
     net_svc = NetworkService.new @logger
     tnodes = role.override_attributes["cinder"]["elements"]["cinder-controller"]
