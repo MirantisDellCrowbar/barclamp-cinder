@@ -134,7 +134,7 @@ class CinderService < ServiceObject
     return if all_nodes.empty?
 
     # apply ceph-client role if storage backend is Rados
-    if role.override_attributes[@bc_name]["volume"]["volume_type"] == "rbd"
+    unless role.override_attributes[@bc_name]["ceph_instance"].empty?
       role.run_list << "role[ceph-cinder]"
       role.save
     end
