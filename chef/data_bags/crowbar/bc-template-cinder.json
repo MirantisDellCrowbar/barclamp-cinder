@@ -10,7 +10,7 @@
       "keystone_instance": "none",
       "glance_instance": "none",
       "database_instance": "none",
-      "ceph_instance": "none",
+      "ceph_instance": "",
       "service_user": "cinder",
       "service_password": "",
       "gitrepo": "http://github.com/openstack/cinder.git",

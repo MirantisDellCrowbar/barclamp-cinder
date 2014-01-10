@@ -50,8 +50,7 @@ class CinderService < ServiceObject
       }
     end
 
-    insts = ["Database", "Keystone", "Glance", "Rabbitmq"]
-    insts << "Ceph" if base["attributes"][@bc_name]["volume"]["volume_type"] == "rbd"
+    insts = ["Database", "Keystone", "Glance", "Rabbitmq", "Ceph"]
 
     base["attributes"][@bc_name]["git_instance"] = ""
     begin
@@ -99,10 +98,6 @@ class CinderService < ServiceObject
       raise(I18n.t('model.service.dependency_missing', :name => @bc_name, :dependson => "rabbitmq"))
     end
 
-    if base["attributes"][@bc_name]["ceph_instance"] == "" && base["attributes"][@bc_name]["volume"]["volume_type"] == "rbd"
-      raise(I18n.t('model.service.dependency_missing', :name => @bc_name, :dependson => "ceph"))
-    end
-
     base["attributes"]["cinder"]["service_password"] = '%012d' % rand(1e12)
 
     @logger.debug("Cinder create_proposal: exiting")
@@ -135,6 +130,7 @@ class CinderService < ServiceObject
 
     # apply ceph-client role if storage backend is Rados
     unless role.override_attributes[@bc_name]["ceph_instance"].empty?
+      role.run_list << "role[cinder-volume]"
       role.run_list << "role[ceph-cinder]"
       role.save
     end
