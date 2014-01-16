@@ -13,6 +13,7 @@
       "service_user": "cinder",
       "service_password": "",
       "gitrepo": "http://github.com/openstack/cinder.git",
+      "ceph_instance": "",
       "git_instance": "",
       "git_refspec": "stable/grizzly",
       "use_gitrepo": false,
