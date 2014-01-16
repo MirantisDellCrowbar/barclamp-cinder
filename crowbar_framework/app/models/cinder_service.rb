@@ -134,7 +134,9 @@ class CinderService < ServiceObject
     end unless tnodes.nil?
 
     if role.default_attributes[@bc_name]["volume"]["volume_type"] == "rbd"
+      # TODO: need to assign apropriate roles depends on node role
       role.run_list << "role[cinder-controller]"
+      role.run_list << "role[cinder-volume]"
       role.run_list << "role[ceph-cinder]"
       role.save
     end
