@@ -133,7 +133,7 @@ class CinderService < ServiceObject
       net_svc.allocate_ip "default", "public", "host", n
     end unless tnodes.nil?
 
-    if [@bc_name]["volume"]["volume_type"] == "rbd"
+    if role.default_attributes[@bc_name]["volume"]["volume_type"] == "rbd"
       role.run_list << "role[cinder-controller]"
       role.run_list << "role[ceph-cinder]"
       role.save
